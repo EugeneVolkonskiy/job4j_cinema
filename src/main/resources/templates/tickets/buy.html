@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <script th:src="@{/js/code.jquery.com_jquery-3.7.0.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <title>Покупка билета</title>
+</head>
+<body>
+<div class="container-fluid p-0">
+    <header th:insert="blocks/header :: header"></header>
+    <div class="container" th:object="${filmSessionDto}" th:inline="text">
+        <div class="mb-3">
+            <b>Покупка билета на фильм:</b> [[${filmSessionDto.filmName}]]
+        </div>
+        <div class="mb-3">
+            <b>Время начала сеанса: </b>[[${filmSessionDto.startTime}]]
+        </div>
+        <div class="mb-3">
+            <b>Время окончания сеанса: </b>[[${filmSessionDto.endTime}]]
+        </div>
+        <div class="mb-3">
+            <b>Цена: </b>[[${filmSessionDto.price}]]
+        </div>
+        <div class="mb-3">
+            <b>Зал: </b>[[${hall.name}]]
+        </div>
+        <form class="mt-3" th:action="@{/tickets/buy/{filmSessionId}(filmSessionId=${filmSessionDto.id})}"
+              method="post">
+            <input type="hidden" name="userId" th:value="${user.id}">
+            <input type="hidden" name="sessionId" th:value="${filmSessionDto.id}">
+            <p></p>
+            <p class="text-danger" th:text="${fail}"></p>
+            <p class="text-danger" th:text="${message}"></p>
+            <p><label for="row-select">Выберите ряд:</label><br>
+                <select name="rowNumber" id="row-select">
+                    <option th:each="rowNumber : ${rows}" th:text="${rowNumber}" th:value="${rowNumber}"></option>
+                </select>
+            </p>
+            <p><label for="place-select">Выберите место:</label><br>
+                <select name="placeNumber" id="place-select">
+                    <option th:each="placeNumber : ${places}" th:text="${placeNumber}"
+                            th:value="${placeNumber}"></option>
+                </select>
+            </p>
+            <div class="mb-3 row">
+                <div class="row">
+                    <div class="col-6"><a class="btn btn-danger w-100" th:href="@{/sessions/list}">Отмена</a></div>
+                    <div class="col-6">
+                        <button class="btn btn-primary w-100" type="submit">Купить</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
