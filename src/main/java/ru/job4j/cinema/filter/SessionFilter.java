@@ -1,5 +1,6 @@
 package ru.job4j.cinema.filter;
 
+import org.junit.jupiter.api.Order;
 import org.springframework.stereotype.Component;
 import ru.job4j.cinema.model.User;
 
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Component
+@Order(2)
 public class SessionFilter extends HttpFilter {
 
     @Override

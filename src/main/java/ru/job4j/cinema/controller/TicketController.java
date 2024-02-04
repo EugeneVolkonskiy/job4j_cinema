@@ -4,12 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.cinema.model.Ticket;
-import ru.job4j.cinema.model.User;
 import ru.job4j.cinema.service.FilmSessionService;
 import ru.job4j.cinema.service.HallService;
 import ru.job4j.cinema.service.TicketService;
-
-import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/tickets")
@@ -35,17 +32,13 @@ public class TicketController {
     }
 
     @PostMapping("/buy/{id}")
-    public String saveTicket(Model model, @ModelAttribute Ticket ticket, @PathVariable int id, HttpSession session) {
-        var user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "users/login";
-        }
+    public String saveTicket(Model model, @ModelAttribute Ticket ticket, @PathVariable int id) {
         getOrderInfo(model, id);
         var savedTicket = ticketService.save(ticket);
         if (savedTicket.isEmpty()) {
             model.addAttribute("fail", "Не удалось приобрести билет на заданное место. "
                     + "Вероятно оно уже занято. Выберите, пожалуйста, другое место.");
-            return "tickets/buy";
+            return "errors/409";
         }
         String message = String.format("Вы успешно приобрели билет на %s ряд, %s место.", ticket.getRowNumber(), ticket.getPlaceNumber());
         model.addAttribute("message", message);

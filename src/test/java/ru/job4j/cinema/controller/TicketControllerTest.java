@@ -11,11 +11,10 @@ import ru.job4j.cinema.service.FilmSessionService;
 import ru.job4j.cinema.service.HallService;
 import ru.job4j.cinema.service.TicketService;
 
-import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,14 +24,12 @@ class TicketControllerTest {
     private HallService hallService;
     private TicketService ticketService;
     private TicketController ticketController;
-    private HttpSession session;
 
     @BeforeEach
     public void initServices() {
         filmSessionService = mock(FilmSessionService.class);
         hallService = mock(HallService.class);
         ticketService = mock(TicketService.class);
-        session = mock(HttpSession.class);
         ticketController = new TicketController(filmSessionService, hallService, ticketService);
     }
 
@@ -62,27 +59,17 @@ class TicketControllerTest {
     }
 
     @Test
-    public void whenSaveTicketThenGetLoginPage() {
-        var ticket = new Ticket(1, 1, 1, 1, 1);
-        var model = new ConcurrentModel();
-        var view = ticketController.saveTicket(model, ticket, 1, session);
-        assertThat(view).isEqualTo("users/login");
-    }
-
-    @Test
     public void whenSaveTicketThanGetFailMessage() {
         var ticket = new Ticket(1, 1, 1, 1, 1);
-        var user = new User(1, "Ivan", "test@mail.ru", "test");
-        when(session.getAttribute("user")).thenReturn(user);
         when(ticketService.save(ticket)).thenReturn(Optional.empty());
         var expectedMessage = "Не удалось приобрести билет на заданное место. Вероятно оно уже занято. "
                 + "Выберите, пожалуйста, другое место.";
 
         var model = new ConcurrentModel();
-        var view = ticketController.saveTicket(model, ticket, 1, session);
+        var view = ticketController.saveTicket(model, ticket, 1);
         var actualMessage = model.getAttribute("fail");
 
-        assertThat(view).isEqualTo("tickets/buy");
+        assertThat(view).isEqualTo("errors/409");
         assertThat(actualMessage).isEqualTo(expectedMessage);
     }
 
@@ -90,12 +77,11 @@ class TicketControllerTest {
     public void whenSaveTicketThanGetSuccessMessage() {
         var ticket = new Ticket(1, 1, 1, 1, 1);
         var user = new User(1, "Ivan", "test@mail.ru", "test");
-        when(session.getAttribute("user")).thenReturn(user);
         when(ticketService.save(ticket)).thenReturn(Optional.of(ticket));
         String expectedMessage = String.format("Вы успешно приобрели билет на %s ряд, %s место.", ticket.getRowNumber(), ticket.getPlaceNumber());
 
         var model = new ConcurrentModel();
-        var view = ticketController.saveTicket(model, ticket, 1, session);
+        var view = ticketController.saveTicket(model, ticket, 1);
         var actualMessage = model.getAttribute("message");
 
         assertThat(view).isEqualTo("tickets/buy");
