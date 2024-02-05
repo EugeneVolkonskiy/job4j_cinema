@@ -17,7 +17,7 @@ public class AuthorizationFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         var uri = request.getRequestURI();
-        if (!(isForbidden(uri) & request.getMethod().equalsIgnoreCase("POST"))) {
+        if (!(isForbidden(uri) && "POST".equalsIgnoreCase(request.getMethod()))) {
             chain.doFilter(request, response);
             return;
         }
